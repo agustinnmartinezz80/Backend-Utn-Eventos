@@ -14,12 +14,10 @@ conectarDB();
 
 
 app.use(cors({
-    origin: [
-        "http://localhost:5173",
-        "https://TU-DOMINIO-DEL-RAILWAY" 
-    ],
+    origin: process.env.FRONTEND_URL,
     credentials: true
 }));
+
 
 app.use(express.json());
 
