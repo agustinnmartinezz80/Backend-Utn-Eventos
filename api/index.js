@@ -1,31 +1,33 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import conectarDB from "../src/config/db.js"; // ajustá la ruta si es distinta
-
+import conectarDB from "../src/config/db.js";
 import authRoutes from "../src/routes/authRoutes.js";
 import eventRoutes from "../src/routes/eventRoutes.js";
 
 dotenv.config();
 const app = express();
 
-// Conectar a la base de datos
+// Conectar a la DB
 conectarDB();
 
-// Configuración de CORS
+// Configuración de CORS y manejo de preflight
 const allowedOrigin = process.env.FRONTEND_URL;
 
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", allowedOrigin);
-    res.header("Access-Control-Allow-Credentials", "true");
-    res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Content-Type,Authorization");
-    next();
-});
+app.use(cors({
+    origin: allowedOrigin,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+}));
 
-app.use(cors({ origin: allowedOrigin, credentials: true }));
+// Manejar preflight OPTIONS requests
+app.options("*", cors({
+    origin: allowedOrigin,
+    credentials: true
+}));
 
-// Parseo de JSON
+// Parseo JSON
 app.use(express.json());
 
 // Rutas
