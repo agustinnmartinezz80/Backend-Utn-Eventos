@@ -1,10 +1,10 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import conectarDB from "./src/config/db.js";
+import conectarDB from "../src/config/db.js"; // ajustá la ruta si es distinta
 
-import authRoutes from "./src/routes/authRoutes.js";
-import eventRoutes from "./src/routes/eventRoutes.js";
+import authRoutes from "../src/routes/authRoutes.js";
+import eventRoutes from "../src/routes/eventRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -23,10 +23,7 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use(cors({
-    origin: allowedOrigin,
-    credentials: true
-}));
+app.use(cors({ origin: allowedOrigin, credentials: true }));
 
 // Parseo de JSON
 app.use(express.json());
