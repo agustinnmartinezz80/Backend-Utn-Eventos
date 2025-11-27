@@ -1,38 +1,44 @@
 import express from "express";
-import authRoutes from "./routes/authRoutes.js";
-import eventRoutes from "./routes/eventRoutes.js";
+import cors from "cors";
+import authRoutes from "./src/routes/authRoutes.js";
+import eventRoutes from "./src/routes/eventRoutes.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
 
-// ✅ CORS MANUAL INFALIBLE
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', 'https://frontend-utn-eventos.vercel.app');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
-    }
-    next();
-});
+// ✅ CORS CONFIGURACIÓN COMPLETA
+app.use(cors({
+    origin: "https://frontend-utn-eventos.vercel.app",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
+}));
 
 app.use(express.json());
 
-// Rutas
+// ✅ RUTAS CON PREFIJO /api
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
 
-// Ruta de prueba
-app.get("/api/auth/ping", (req, res) => {
-    console.log("✅ Ping recibido - CORS funcionando");
-    res.json({ message: "pong", cors: "working" });
+// ✅ RUTA DE PRUEBA DIRECTA
+app.get("/api/test", (req, res) => {
+    res.json({ message: "Backend is working!", timestamp: new Date().toISOString() });
 });
 
-// ✅ AGREGA ESTO SI FALTA - INICIAR SERVIDOR
+// ✅ RUTA DE FALLBACK
+app.use("*", (req, res) => {
+    res.status(404).json({ 
+        error: "Route not found",
+        requestedUrl: req.originalUrl
+    });
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`✅ CORS enabled for frontend`);
 });
 
 export default app;
