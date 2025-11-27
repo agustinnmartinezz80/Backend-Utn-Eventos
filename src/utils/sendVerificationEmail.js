@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 
 const sendVerificationEmail = async (email, userId) => {
-    const verificationLink = `${process.env.FRONTEND_URL}/api/auth/verify/${userId}`;
+    const verificationLink = `${process.env.VERCEL_URL}/api/auth/verify/${userId}`;
 
 
 
