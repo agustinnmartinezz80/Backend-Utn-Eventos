@@ -1,38 +1,25 @@
 import express from "express";
-import cors from "cors";
-import authRoutes from "../routes/authRoutes.js";
-import eventRoutes from "../routes/eventRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
+import eventRoutes from "./routes/eventRoutes.js";
 
 const app = express();
 
-// Configuración más robusta de CORS
-const corsOptions = {
-    origin: "https://frontend-utn-eventos.vercel.app",
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: [
-        "Content-Type",
-        "Authorization",
-        "X-Requested-With",
-        "Accept",
-        "Origin"
-    ],
-    optionsSuccessStatus: 200
-};
+// ✅ CORS MANUAL - ELIMINA COMPLETAMENTE LA DEPENDENCIA CORS
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', 'https://frontend-utn-eventos.vercel.app');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+    next();
+});
 
-app.use(cors(corsOptions));
-
-// Manejar preflight requests globalmente
-app.options('*', cors(corsOptions));
-
-// Middleware
 app.use(express.json());
-
-// Monta las rutas bajo /api
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
-
-// Ruta de prueba
-app.get("/api/ping", (req, res) => res.json({ message: "pong" }));
+app.get("/api/auth/ping", (req, res) => res.json({ message: "pong" }));
 
 export default app;
