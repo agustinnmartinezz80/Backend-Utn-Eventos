@@ -5,15 +5,28 @@ import eventRoutes from "../routes/eventRoutes.js";
 
 const app = express();
 
+// Configuración más robusta de CORS
+const corsOptions = {
+    origin: "https://frontend-utn-eventos.vercel.app",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+        "Content-Type",
+        "Authorization",
+        "X-Requested-With",
+        "Accept",
+        "Origin"
+    ],
+    optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
+
+// Manejar preflight requests globalmente
+app.options('*', cors(corsOptions));
+
 // Middleware
 app.use(express.json());
-
-// Configura CORS correctamente
-app.use(cors({
-    origin: "https://frontend-utn-eventos.vercel.app", // tu frontend en Vercel
-    methods: ["GET", "POST", "PUT", "DELETE"],
-
-}));
 
 // Monta las rutas bajo /api
 app.use("/api/auth", authRoutes);
