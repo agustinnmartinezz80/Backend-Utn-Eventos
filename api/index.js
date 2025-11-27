@@ -8,15 +8,18 @@ const app = express();
 // Middleware
 app.use(express.json());
 
-// CORS configurado para tu frontend
+// Configura CORS correctamente
 app.use(cors({
     origin: "https://frontend-utn-eventos.vercel.app", // tu frontend en Vercel
     methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true, // permite enviar cookies si es necesario
+
 }));
 
-// Rutas
+// Monta las rutas bajo /api
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
+
+// Ruta de prueba
+app.get("/api/ping", (req, res) => res.json({ message: "pong" }));
 
 export default app;
