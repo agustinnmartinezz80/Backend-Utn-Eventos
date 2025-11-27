@@ -102,13 +102,13 @@ export const verifyEmailController = async (req, res) => {
         if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
 
         if (user.verified) {
-            return res.redirect(`${process.env.VERCEL_URL}/verified`);
+            return res.redirect(`${process.env.VERCEL_URL}`);
         }
 
         user.verified = true;
         await user.save();
 
-        return res.redirect(`${process.env.VERCEL_URL}/verified`);
+        return res.redirect(`${process.env.VERCEL_URL}`);
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "Error al verificar la cuenta" });
