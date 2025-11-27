@@ -1,54 +1,37 @@
 import express from "express";
 import cors from "cors";
-import authRoutes from "./src/routes/authRoutes.js";
-import eventRoutes from "./src/routes/eventRoutes.js";
-import dotenv from "dotenv";
 
-// ✅ CONFIGURACIÓN INICIAL CON TRY-CATCH
-try {
-    dotenv.config();
+const app = express();
 
-    const app = express();
+// CORS MÁXIMO
+app.use(cors({
+    origin: "*",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+}));
 
-    // ✅ CORS SIMPLIFICADO PERO EFECTIVO
-    app.use(cors({
-        origin: "https://frontend-utn-eventos.vercel.app",
-        credentials: true
-    }));
+app.use(express.json());
 
-    app.use(express.json());
+// SOLO RUTAS BÁSICAS - ELIMINA TODOS LOS IMPORTS COMPLEJOS
+app.get("/api/auth/ping", (req, res) => {
+    res.json({ message: "pong", status: "working" });
+});
 
-    // ✅ RUTA DE PRUEBA ANTES DE TODAS LAS DEMÁS
-    app.get("/api/test", (req, res) => {
-        res.json({ message: "✅ Backend funcionando!" });
+app.post("/api/auth/login", (req, res) => {
+    res.json({
+        message: "login simulated",
+        token: "test-token-123",
+        user: { email: req.body.email, id: 1 }
     });
+});
 
-    // ✅ RUTAS PRINCIPALES CON MANEJO DE ERRORES
-    app.use("/api/auth", authRoutes);
-    app.use("/api/events", eventRoutes);
+app.get("/api/events", (req, res) => {
+    res.json({ events: [] });
+});
 
-    // ✅ MANEJADOR DE ERRORES GLOBAL
-    app.use((error, req, res, next) => {
-        console.error("Error crítico:", error);
-        res.status(500).json({ error: "Error interno del servidor" });
-    });
-
-    const PORT = process.env.PORT || 3000;
-
-    if (process.env.NODE_ENV !== 'production') {
-        app.listen(PORT, () => {
-            console.log(`Servidor en puerto ${PORT}`);
-        });
-    }
-
-
-
-} catch (error) {
-    console.error("❌ ERROR AL INICIAR LA APP:", error);
-    // Exporta una app básica para que Vercel no falle
-    const app = express();
-    app.get("*", (req, res) => res.json({ error: "Server initializing" }));
-    
-}
+// Ruta de salud
+app.get("/api/health", (req, res) => {
+    res.json({ status: "OK", timestamp: new Date().toISOString() });
+});
 
 export default app;
