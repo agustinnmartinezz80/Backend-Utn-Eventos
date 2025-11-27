@@ -4,7 +4,7 @@ import eventRoutes from "./routes/eventRoutes.js";
 
 const app = express();
 
-// ✅ CORS MANUAL - ELIMINA COMPLETAMENTE LA DEPENDENCIA CORS
+// ✅ CORS MANUAL INFALIBLE
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', 'https://frontend-utn-eventos.vercel.app');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -18,8 +18,21 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
+
+// Rutas
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
-app.get("/api/auth/ping", (req, res) => res.json({ message: "pong" }));
+
+// Ruta de prueba
+app.get("/api/auth/ping", (req, res) => {
+    console.log("✅ Ping recibido - CORS funcionando");
+    res.json({ message: "pong", cors: "working" });
+});
+
+// ✅ AGREGA ESTO SI FALTA - INICIAR SERVIDOR
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+});
 
 export default app;
