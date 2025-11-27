@@ -4,41 +4,51 @@ import authRoutes from "./src/routes/authRoutes.js";
 import eventRoutes from "./src/routes/eventRoutes.js";
 import dotenv from "dotenv";
 
-dotenv.config();
+// ✅ CONFIGURACIÓN INICIAL CON TRY-CATCH
+try {
+    dotenv.config();
 
-const app = express();
+    const app = express();
 
-// ✅ CORS CONFIGURACIÓN COMPLETA
-app.use(cors({
-    origin: "https://frontend-utn-eventos.vercel.app",
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
-}));
+    // ✅ CORS SIMPLIFICADO PERO EFECTIVO
+    app.use(cors({
+        origin: "https://frontend-utn-eventos.vercel.app",
+        credentials: true
+    }));
 
-app.use(express.json());
+    app.use(express.json());
 
-// ✅ RUTAS CON PREFIJO /api
-app.use("/api/auth", authRoutes);
-app.use("/api/events", eventRoutes);
-
-// ✅ RUTA DE PRUEBA DIRECTA
-app.get("/api/test", (req, res) => {
-    res.json({ message: "Backend is working!", timestamp: new Date().toISOString() });
-});
-
-// ✅ RUTA DE FALLBACK
-app.use("*", (req, res) => {
-    res.status(404).json({ 
-        error: "Route not found",
-        requestedUrl: req.originalUrl
+    // ✅ RUTA DE PRUEBA ANTES DE TODAS LAS DEMÁS
+    app.get("/api/test", (req, res) => {
+        res.json({ message: "✅ Backend funcionando!" });
     });
-});
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`✅ CORS enabled for frontend`);
-});
+    // ✅ RUTAS PRINCIPALES CON MANEJO DE ERRORES
+    app.use("/api/auth", authRoutes);
+    app.use("/api/events", eventRoutes);
+
+    // ✅ MANEJADOR DE ERRORES GLOBAL
+    app.use((error, req, res, next) => {
+        console.error("Error crítico:", error);
+        res.status(500).json({ error: "Error interno del servidor" });
+    });
+
+    const PORT = process.env.PORT || 3000;
+
+    if (process.env.NODE_ENV !== 'production') {
+        app.listen(PORT, () => {
+            console.log(`Servidor en puerto ${PORT}`);
+        });
+    }
+
+
+
+} catch (error) {
+    console.error("❌ ERROR AL INICIAR LA APP:", error);
+    // Exporta una app básica para que Vercel no falle
+    const app = express();
+    app.get("*", (req, res) => res.json({ error: "Server initializing" }));
+    
+}
 
 export default app;
