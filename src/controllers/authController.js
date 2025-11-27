@@ -2,7 +2,6 @@ import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import sendVerificationEmail from "../utils/sendVerificationEmail.js";
-import nodemailer from "nodemailer";
 
 export const registerUser = async (req, res) => {
     try {
@@ -29,22 +28,6 @@ export const registerUser = async (req, res) => {
         console.log("Usuario creado en la base de datos:", user);
 
         try {
-            const transporter = nodemailer.createTransport({
-                service: "gmail",
-                auth: {
-                    user: process.env.EMAIL_USER,
-                    pass: process.env.EMAIL_PASS,
-                },
-            });
-
-            await transporter.verify();
-            console.log("Credenciales de correo verificadas correctamente.");
-        } catch (error) {
-            console.error("Error verificando credenciales de correo:", error);
-            return res.status(500).json({ message: "Error con las credenciales de correo." });
-        }
-
-        try {
             await sendVerificationEmail(user.email, user._id);
             console.log("Correo de verificación enviado a:", user.email);
         } catch (error) {
@@ -61,16 +44,18 @@ export const registerUser = async (req, res) => {
     }
 };
 
-
 export const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
 
         const user = await User.findOne({ email });
-        if (!user) return res.status(400).json({ message: "Usuario no encontrado. Verifica tu correo electrónico." });
+        if (!user)
+            return res.status(400).json({ message: "Usuario no encontrado. Verifica tu correo electrónico." });
 
         if (!user.verified)
-            return res.status(400).json({ message: "Debes verificar tu correo antes de iniciar sesión. Revisa tu bandeja de entrada." });
+            return res.status(400).json({
+                message: "Debes verificar tu correo antes de iniciar sesión. Revisa tu bandeja de entrada.",
+            });
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(400).json({ message: "Contraseña incorrecta. Intenta nuevamente." });
@@ -93,7 +78,6 @@ export const loginUser = async (req, res) => {
     }
 };
 
-
 export const verifyEmailController = async (req, res) => {
     try {
         const { id } = req.params;
@@ -102,15 +86,16 @@ export const verifyEmailController = async (req, res) => {
         if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
 
         if (user.verified) {
-            return res.redirect(`${process.env.VERCEL_URL}`);
+            return res.status(200).json({ message: "El correo ya fue verificado anteriormente" });
         }
 
         user.verified = true;
         await user.save();
 
-        return res.redirect(`${process.env.VERCEL_URL}`);
+        console.log(`Usuario verificado exitosamente: ${user.email}`);
+        return res.status(200).json({ message: "Cuenta verificada exitosamente" });
     } catch (error) {
-        console.error(error);
+        console.error("Error al verificar la cuenta:", error);
         return res.status(500).json({ message: "Error al verificar la cuenta" });
     }
 };
@@ -133,6 +118,6 @@ export const resendVerificationEmail = async (req, res) => {
         res.json({ message: "Correo de verificación reenviado." });
     } catch (error) {
         console.error("Error reenviando correo de verificación:", error);
-        res.status(500).json({ message: "Error interno del servidor." });
-    }
+        res.status(500).json({ message: "Error interno del servidor." });
+    }
 };

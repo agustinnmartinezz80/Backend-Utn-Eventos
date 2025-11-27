@@ -1,17 +1,24 @@
 import nodemailer from "nodemailer";
 
 const sendVerificationEmail = async (email, userId) => {
-    const verificationLink = `${process.env.VERCEL_URL}/verify/${userId}`;
+    // Usar FRONTEND_URL si está definida, de lo contrario usar VERCEL_URL
+    const frontendUrl = process.env.FRONTEND_URL || `https://${process.env.VERCEL_URL}`;
+    const verificationLink = `${frontendUrl}/verify-email/${userId}`;
 
     try {
         const transporter = nodemailer.createTransport({
-            service: "gmail",
+            host: "smtp.gmail.com",
+            port: 587, 
+            secure: false,
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS,
             },
-            debug: true, // Habilitar logs detallados
-            logger: true, // Mostrar logs en consola
+            tls: {
+                rejectUnauthorized: false, 
+            },
+            debug: true, 
+            logger: true, 
         });
 
         await transporter.verify();
