@@ -38,15 +38,13 @@ export const loginUser = async (req, res) => {
         const { email, password } = req.body;
 
         const user = await User.findOne({ email });
-        if (!user) return res.status(400).json({ message: "Usuario no encontrado" });
+        if (!user) return res.status(400).json({ message: "Usuario no encontrado. Verifica tu correo electrónico." });
 
         if (!user.verified)
-            return res
-                .status(400)
-                .json({ message: "Debes verificar tu correo antes de iniciar sesión" });
+            return res.status(400).json({ message: "Debes verificar tu correo antes de iniciar sesión. Revisa tu bandeja de entrada." });
 
         const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).json({ message: "Contraseña incorrecta" });
+        if (!isMatch) return res.status(400).json({ message: "Contraseña incorrecta. Intenta nuevamente." });
 
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
             expiresIn: "1d",
@@ -62,7 +60,7 @@ export const loginUser = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ message: "Error en login" });
+        return res.status(500).json({ message: "Error interno del servidor. Por favor, intenta más tarde." });
     }
 };
 

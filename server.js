@@ -9,9 +9,12 @@ dotenv.config();
 
 const app = express();
 
+const PORT = process.env.PORT || 4000;
+
+const isProduction = process.env.NODE_ENV === "production";
+
 const allowedOrigins = [
-    "https://frontend-utn-eventos.vercel.app",
-    "http://localhost:5173"
+    process.env.FRONTEND_URL || "http://localhost:5173"
 ];
 
 app.use(cors({
@@ -21,10 +24,22 @@ app.use(cors({
 }));
 app.use(express.json());
 
-mongoose.connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
+app.get("/", (req, res) => {
+    res.send(`
+        <h1>Backend UTN Eventos</h1>
+        <p>El backend está ejecutándose correctamente. Aquí están los endpoints disponibles:</p>
+        <pre>
+POST /api/auth/login - Iniciar sesión
+POST /api/auth/register - Registrar usuario
+GET /api/events - Obtener eventos
+POST /api/events - Crear evento
+PUT /api/events/:id - Actualizar evento
+DELETE /api/events/:id - Eliminar evento
+        </pre>
+    `);
+});
+
+mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("Conectado a MongoDB"))
     .catch((error) => {
         console.error("Error de conexión a MongoDB:", error);
@@ -38,9 +53,10 @@ app.get("/api/health", (req, res) => {
     res.json({ status: "OK", timestamp: new Date().toISOString() });
 });
 
-const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
-console.log("Servidor backend escuchando en puerto ${ PORT }");
+    console.log(`Servidor backend escuchando en puerto ${PORT}`);
+    console.log(`Entorno: ${isProduction ? "Producción" : "Desarrollo"}`);
 });
 
+// Exportar el handler para Vercel
 export default app;
