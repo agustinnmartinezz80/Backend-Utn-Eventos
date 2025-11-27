@@ -5,12 +5,14 @@ import eventRoutes from "../routes/eventRoutes.js";
 
 const app = express();
 
+// Middleware
 app.use(express.json());
 
-// ✅ Configura CORS para tu frontend en producción
+// CORS configurado para tu frontend
 app.use(cors({
-    origin: "https://frontend-utn-eventos.vercel.app",
-    credentials: true // si estás usando cookies / headers de autenticación
+    origin: "https://frontend-utn-eventos.vercel.app", // tu frontend en Vercel
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true, // permite enviar cookies si es necesario
 }));
 
 // Rutas
