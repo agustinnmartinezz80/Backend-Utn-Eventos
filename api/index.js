@@ -8,23 +8,17 @@ import eventRoutes from "../src/routes/eventRoutes.js";
 dotenv.config();
 const app = express();
 
-// Conectar a la DB
+// Conectar DB
 conectarDB();
 
-// Configuración de CORS y manejo de preflight
+// Configuración CORS
 const allowedOrigin = process.env.FRONTEND_URL;
 
 app.use(cors({
-    origin: allowedOrigin,
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"]
-}));
-
-// Manejar preflight OPTIONS requests
-app.options("*", cors({
-    origin: allowedOrigin,
-    credentials: true
+  origin: allowedOrigin,
+  credentials: true,
+  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
+  allowedHeaders: ["Content-Type","Authorization"]
 }));
 
 // Parseo JSON
@@ -34,5 +28,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
 
-// Exportar app para Vercel
+// --- NO usar app.options("*", ...) ---
+// Express maneja OPTIONS automáticamente cuando cors está configurado correctamente
+
 export default app;
