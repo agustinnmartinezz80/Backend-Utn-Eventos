@@ -8,17 +8,13 @@ import eventRoutes from "../src/routes/eventRoutes.js";
 dotenv.config();
 const app = express();
 
-// Conectar DB
+// Conectar a MongoDB
 conectarDB();
 
-// Configuración CORS
-const allowedOrigin = process.env.FRONTEND_URL;
-
+// CORS
 app.use(cors({
-  origin: allowedOrigin,
-  credentials: true,
-  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
-  allowedHeaders: ["Content-Type","Authorization"]
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
 }));
 
 // Parseo JSON
@@ -28,7 +24,9 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
 
-// --- NO usar app.options("*", ...) ---
-// Express maneja OPTIONS automáticamente cuando cors está configurado correctamente
+// Ruta ping para despertar el backend
+app.get("/api/auth/ping", (req, res) => {
+    res.json({ ok: true });
+});
 
 export default app;

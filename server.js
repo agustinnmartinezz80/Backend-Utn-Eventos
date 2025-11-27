@@ -1,4 +1,5 @@
-import app from "./api/index.js"; // apuntando a tu Express exportado
+import app from "./api/index.js";
+
 const PORT = process.env.PORT || 4000;
 
 app.listen(PORT, () => {
